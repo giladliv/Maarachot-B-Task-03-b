@@ -178,7 +178,25 @@ Matrix Matrix::operator-(const Matrix& other) const
 Matrix Matrix::operator*(const Matrix& other) const
 {
     throwIfMulWrong(*this, other);   // throw if illegal
-    return (*this);
+    int n = this->_row;
+    int k = this->_col;
+    int m = other._col;
+
+    vector<double> zero((unsigned int)n*(unsigned int)m, 0);
+    Matrix ret{zero, n, m};
+
+    for (unsigned int i = 0; i < n; i++)
+    {
+        for (unsigned int j = 0; j < m; j++)
+        {
+            for (unsigned int t = 0; t < k; t++)
+            {
+                ret._mat[i][j] += this->_mat[i][t] * other._mat[t][j];
+            }
+        }
+    }
+
+    return (ret);
 }
 
 Matrix Matrix::operator*(double skalar) const
@@ -219,6 +237,7 @@ Matrix& Matrix::operator-=(const Matrix& other)
 Matrix& Matrix::operator*=(const Matrix& other)
 {
     throwIfMulWrong(*this, other);   // throw if illegal
+    (*this) = (*this) * other;
     return (*this);
 }
 
@@ -311,7 +330,19 @@ int Matrix::compareSumMatrix(const Matrix& a, const Matrix& b)
 bool zich::operator==(const Matrix& m1, const Matrix& m2)
 {
     throwIfNotSameSize(m1, m2);   // throw if illegal
-    return (false);
+    int row = m1._row;
+    int col = m1._col;
+    for (unsigned int i = 0; i < row; i++)
+    {
+        for (unsigned int j = 0; j < col; j++)
+        {
+            if (m1._mat[i][j] != m2._mat[i][j])
+                return (false);
+        }
+        
+    }
+    
+    return (true);
 }
 
 bool zich::operator!=(const Matrix& m1, const Matrix& m2)
@@ -346,22 +377,10 @@ bool zich::operator>=(const Matrix& m1, const Matrix& m2)
 
 string Matrix::toString() const
 {
-    string s;
-    for (unsigned int i = 0; i < _row; i++)
-    {
-        s += "[";
-        for (unsigned int j = 0; j < _col; j++)
-        {
-            s += to_string(_mat[i][j]);
-            if (j < _col - 1)
-            {
-                s += ", ";
-            }
-        }
-        s += "]\n";
-    }
+    stringstream strm;
+    strm << (*this);
 
-    return s;
+    return strm.str();
 }
 
 ostream& zich::operator<< (ostream& output, const Matrix& m)
@@ -392,7 +411,8 @@ ostream& zich::operator<< (ostream& output, const Matrix& m)
 istream& zich::operator>> (istream& input , Matrix& m)
 {
     //for the regex:
-    //\[\d+(\, \d+)*\](\, \[\d+(\, \d+)*\])*$
+    // \[\d+(\, \d+)*\](\, \[\d+(\, \d+)*\])*$
+    // (\d*\.?\d+) - double num
     
     return (input);
 }

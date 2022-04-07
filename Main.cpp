@@ -38,6 +38,7 @@ int main() {
             [0 0 3]*/
 
   Matrix b{arr, 3, 3};
+  cout << (b == 3*a) << endl;
   cout << (a < b) << endl;
   a *= -3;
   cout << (a+b) << endl;  // prints the 0 matrix
@@ -45,10 +46,10 @@ int main() {
   /* prints [6 0 0]
             [0 6 0]
             [0 0 6]*/
-  double t = 0;
-  t = .0;
-  t *= -1.0;
-  cout << t << endl;
+  
+  b *= b;
+  
+  cout << b.toString() << endl;
 
   cout << "End of demo!" << endl;
   return 0;
