@@ -19,6 +19,9 @@ $(OBJECT_PATH)/%.o: $(SOURCE_PATH)/%.cpp $(HEADERS)
 Test.o: Test.cpp 
 	$(CXX) $(CXXFLAGS) -o Test.o
 
+main: Main.o $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $^ -o main
+
 tidy:
 	clang-tidy $(SOURCES) $(TIDY_FLAGS) --
 
@@ -26,5 +29,5 @@ valgrind: test
 	valgrind --tool=memcheck $(VALGRIND_FLAGS) ./test 2>&1 | { egrep "lost| at " || true; }
 
 clean:
-	rm -f $(OBJECTS) *.o test* 
+	rm -f $(OBJECTS) *.o test* main
 	rm -f StudentTest*.cpp
