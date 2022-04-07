@@ -310,12 +310,13 @@ long double Matrix::sumMatrix() const
  * 
  * @param a the left matrix
  * @param b the right matrix
- * @return int: (-1) if sum(a) > sum(b),
- *               (0) if sum(b) < sum(b)
+ * @return int: (-1) if sum(a) < sum(b),
+ *               (0) if sum(a) = sum(b)
+ *               (1) if sum(a) > sum(b)
  */
 int Matrix::compareSumMatrix(const Matrix& a, const Matrix& b)
 {
-    long double diff = b.sumMatrix() - a.sumMatrix();
+    long double diff = a.sumMatrix() - b.sumMatrix();
     if (diff < -EPS)        // if the comparison is lower than the -EPS then (a > b)
     {
         return (-1);
@@ -339,7 +340,6 @@ bool zich::operator==(const Matrix& m1, const Matrix& m2)
             if (m1._mat[i][j] != m2._mat[i][j])
                 return (false);
         }
-        
     }
     
     return (true);
@@ -348,31 +348,31 @@ bool zich::operator==(const Matrix& m1, const Matrix& m2)
 bool zich::operator!=(const Matrix& m1, const Matrix& m2)
 {
     throwIfNotSameSize(m1, m2);   // throw if illegal
-    return (false);
+    return (!(m1 == m2));
 }
 
 bool zich::operator<(const Matrix& m1, const Matrix& m2)
 {
     throwIfNotSameSize(m1, m2);   // throw if illegal
-    return (false);
+    return (Matrix::compareSumMatrix(m1, m2) < 0);
 }
 
 bool zich::operator>(const Matrix& m1, const Matrix& m2)
 {
     throwIfNotSameSize(m1, m2);   // throw if illegal
-    return (false);
+    return (Matrix::compareSumMatrix(m1, m2) > 0);
 }
 
 bool zich::operator<=(const Matrix& m1, const Matrix& m2)
 {
     throwIfNotSameSize(m1, m2);   // throw if illegal
-    return (false);
+    return (m1 == m2 || m1 < m2);
 }
 
 bool zich::operator>=(const Matrix& m1, const Matrix& m2)
 {
     throwIfNotSameSize(m1, m2);   // throw if illegal
-    return (false);
+    return (m1 == m2 || m1 > m2);
 }
 
 string Matrix::toString() const

@@ -7,7 +7,8 @@
 
 using namespace std;
 
-#define EPS 1e-50
+//#define EPS 1e-50
+#define EPS 0
 
 namespace zich
 {
