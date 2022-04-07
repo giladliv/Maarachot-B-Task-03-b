@@ -6,6 +6,8 @@
 
 using namespace std;
 
+#define EPS 1e-50
+
 namespace zich
 {
     class Matrix
@@ -55,15 +57,11 @@ namespace zich
             friend bool operator>(const Matrix& m1, const Matrix& m2);
             friend bool operator<=(const Matrix& m1, const Matrix& m2);
             friend bool operator>=(const Matrix& m1, const Matrix& m2);
-
             
             // io operators
             friend std::ostream& operator<< (ostream& output, const Matrix& m);
             friend std::istream& operator>> (istream& input , Matrix& m);
-
-
-            
-            
+            string toString() const;
 
         private:
             /* data */
@@ -72,9 +70,10 @@ namespace zich
             int _col;
 
             void arrToMat(vector<double>& matArr, int row, int col);
-
             friend void throwIfNotSameSize(const Matrix& a, const Matrix& b);
             friend void throwIfMulWrong(const Matrix& a, const Matrix& b);
+            static int compareSumMatrix(const Matrix& a, const Matrix& b);
+            long double sumMatrix() const;
             
     };
     

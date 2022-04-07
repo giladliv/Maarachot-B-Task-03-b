@@ -47,7 +47,15 @@ void Matrix::arrToMat(vector<double>& matArr, int row, int col)
  */
 Matrix::Matrix(const Matrix& other)
 {
+    (*this) = other;
+}
 
+Matrix::~Matrix()
+{
+    for(unsigned int i = 0; i < _mat.size(); i++)
+    {
+        _mat[i].clear();
+    }
 }
 
 /**
@@ -63,12 +71,25 @@ Matrix& Matrix::operator=(const Matrix& other)
         return (*this);
     }
     
+    for(unsigned int i = 0; i < _mat.size(); i++)
+    {
+        _mat[i].clear();
+    }
+    
+    _mat = vector<vector<double>>();
+    
+    for (unsigned int i = 0; i < other._mat.size(); i++)
+    {
+        this->_mat.push_back(vector<double>(other._mat[i]));
+    }
+    
+    this->_row = other._row;
+    this->_col = other._col;
+
     return (*this);
 }
 
-Matrix::~Matrix()
-{
-}
+
 
 /**
  * @brief the function throws exception if the 2 matrixes doesn't have the same row and colomns
@@ -119,8 +140,9 @@ Matrix Matrix::operator+() const
 Matrix Matrix::operator+(const Matrix& other) const
 {
     throwIfNotSameSize(*this, other);   // throw if illegal
-
-    return (*this);
+    Matrix temp = (*this);
+    temp += other;
+    return (temp);
 }
 
 /**
@@ -130,7 +152,7 @@ Matrix Matrix::operator+(const Matrix& other) const
  */
 Matrix Matrix::operator-() const
 {
-    return (*this);
+    return ((*this)*(-1));
 }
 
 /**
@@ -142,7 +164,8 @@ Matrix Matrix::operator-() const
 Matrix Matrix::operator-(const Matrix& other) const
 {
     throwIfNotSameSize(*this, other);   // throw if illegal
-    return (*this);
+
+    return ((*this) + (-other));
 }
 
 // * operator
@@ -160,12 +183,14 @@ Matrix Matrix::operator*(const Matrix& other) const
 
 Matrix Matrix::operator*(double skalar) const
 {
-    return (*this);
+    Matrix temp{*this};
+    temp *= skalar;
+    return (temp);
 }
 
 Matrix zich::operator*(double skalar, const Matrix& m)
 {
-    return (m);
+    return (m * skalar);
 }
 
 
@@ -173,12 +198,21 @@ Matrix zich::operator*(double skalar, const Matrix& m)
 Matrix& Matrix::operator+=(const Matrix& other)
 {
     throwIfNotSameSize(*this, other);   // throw if illegal
+    for(unsigned int i = 0; i < _row; i++)
+    {
+        for (unsigned int j = 0; j < _col; j++)
+        {
+            _mat[i][j] += other._mat[i][j];
+        }
+    }
+
     return (*this);
 }
 
 Matrix& Matrix::operator-=(const Matrix& other)
 {
     throwIfNotSameSize(*this, other);   // throw if illegal
+    (*this) += (-other);
     return (*this);
 }
 
@@ -190,27 +224,88 @@ Matrix& Matrix::operator*=(const Matrix& other)
 
 Matrix& Matrix::operator*=(double skalar)
 {
+    for(unsigned int i = 0; i < _row; i++)
+    {
+        for (unsigned int j = 0; j < _col; j++)
+        {
+            _mat[i][j] *= skalar;
+        }
+    }
     return (*this);
 }
 
 Matrix& Matrix::operator++()
 {
+    for(unsigned int i = 0; i < _row; i++)
+    {
+        for (unsigned int j = 0; j < _col; j++)
+        {
+            _mat[i][j] += 1;
+        }
+    }
     return (*this);
 }
 
 Matrix& Matrix::operator--()
 {
+    for(unsigned int i = 0; i < _row; i++)
+    {
+        for (unsigned int j = 0; j < _col; j++)
+        {
+            _mat[i][j] -= 1;
+        }
+    }
     return (*this);
 }
 
 Matrix Matrix::operator++(int dummy_flag_for_postfix_increment)
 {
-    return (*this);
+    Matrix temp{*this};
+    ++(*this);
+    return temp;
 }
 
 Matrix Matrix::operator--(int dummy_flag_for_postfix_increment)
 {
-    return (*this);
+    Matrix temp{*this};
+    --(*this);
+    return temp;
+}
+
+long double Matrix::sumMatrix() const
+{
+    long double sum = 0;
+    for (unsigned int i = 0; i < _row; i++)
+    {
+        for (unsigned int j = 0; j < _col; j++)
+        {
+            sum += (long double)_mat[i][j];
+        }
+        
+    }
+    return (sum);
+}
+
+/**
+ * @brief comapres the matrixes sum, for a,b matrixes
+ * 
+ * @param a the left matrix
+ * @param b the right matrix
+ * @return int: (-1) if sum(a) > sum(b),
+ *               (0) if sum(b) < sum(b)
+ */
+int Matrix::compareSumMatrix(const Matrix& a, const Matrix& b)
+{
+    long double diff = b.sumMatrix() - a.sumMatrix();
+    if (diff < -EPS)        // if the comparison is lower than the -EPS then (a > b)
+    {
+        return (-1);
+    }
+    if (diff > EPS)        // if the comparison is higher than the EPS then (a < b)
+    {
+        return (1);
+    }
+    return 0;
 }
 
 bool zich::operator==(const Matrix& m1, const Matrix& m2)
@@ -249,12 +344,56 @@ bool zich::operator>=(const Matrix& m1, const Matrix& m2)
     return (false);
 }
 
+string Matrix::toString() const
+{
+    string s;
+    for (unsigned int i = 0; i < _row; i++)
+    {
+        s += "[";
+        for (unsigned int j = 0; j < _col; j++)
+        {
+            s += to_string(_mat[i][j]);
+            if (j < _col - 1)
+            {
+                s += ", ";
+            }
+        }
+        s += "]\n";
+    }
+
+    return s;
+}
+
 ostream& zich::operator<< (ostream& output, const Matrix& m)
 {
+    double t = 0.0;
+    for (unsigned int i = 0; i < m._row; i++)
+    {
+        output << "[";
+        for (unsigned int j = 0; j < m._col; j++)
+        {
+            t = m._mat[i][j];
+            if (t == 0)
+                output << 0;
+            else
+                output << t;
+            
+            if (j < m._col - 1)
+            {
+                output << ", ";
+            }
+        }
+        output << "]\n";
+    }
+
     return (output);
 }
 
 istream& zich::operator>> (istream& input , Matrix& m)
 {
+    //for the regex:
+    //\[\d+(\, \d+)*\](\, \[\d+(\, \d+)*\])*$
+    
     return (input);
 }
+
