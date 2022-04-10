@@ -4,6 +4,7 @@
 #include <vector>
 #include <stdexcept>
 #include <sstream>
+#include <regex>
 
 using namespace std;
 
@@ -17,6 +18,7 @@ namespace zich
         public:
             // c'tor
             Matrix(vector<double>& mat, int row, int col);
+            Matrix(const string& str);
             Matrix(const Matrix& other);
             
             // d'tor
@@ -64,6 +66,8 @@ namespace zich
             friend std::ostream& operator<< (ostream& output, const Matrix& m);
             friend std::istream& operator>> (istream& input , Matrix& m);
             string toString() const;
+            vector<string> split(const string& str, char parser);
+            static int getNumberOfColumnFromStr(const string& str);
 
         private:
             /* data */
@@ -76,6 +80,7 @@ namespace zich
             friend void throwIfMulWrong(const Matrix& a, const Matrix& b);
             static int compareSumMatrix(const Matrix& a, const Matrix& b);
             long double sumMatrix() const;
+            static bool isGoodMatrixInput(const string& str);
             
     };
     

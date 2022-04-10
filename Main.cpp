@@ -16,7 +16,6 @@ using namespace std;
 
 #include "sources/Matrix.hpp"
 
-
 using namespace zich;
 
 int main() {
@@ -51,7 +50,11 @@ int main() {
   b *= b;
   
   cout << b.toString() << endl;
-
+  /*
+  [6, 0, 0], [0, 6, 0], [0, 0, 6]
+  */
+  cin >> a;
+  cout << a << endl;
   cout << "End of demo!" << endl;
   return 0;
 }

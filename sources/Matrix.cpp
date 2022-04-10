@@ -20,8 +20,7 @@ Matrix::Matrix(vector<double>& mat, int row, int col)
     }
     _row = row;
     _col = col;
-    arrToMat(mat, row, col);        // copy the vector to the matrix
-    
+    arrToMat(mat, row, col);        // copy the vector to the matrix   
 }
 
 void Matrix::arrToMat(vector<double>& matArr, int row, int col)
@@ -48,6 +47,55 @@ void Matrix::arrToMat(vector<double>& matArr, int row, int col)
 Matrix::Matrix(const Matrix& other)
 {
     (*this) = other;
+}
+
+/**
+ * @brief by given string create the matrix
+ * 
+ * @param str 
+ */
+Matrix::Matrix(const string& str)
+{
+    if (!Matrix::isGoodMatrixInput(str))
+    {
+        throw MessageException("matrix must be with format of [..., ..., ...], [..., ..., ...], ...");
+    }
+    int cols = getNumberOfColumnFromStr(str);
+    
+    string workOnStr;
+    for (unsigned int i = 0; i < str.length(); i++)
+    {
+        if (str[i] != '[' && str[i] != ']' && str[i] != ' ')
+        {
+            workOnStr += str[i];
+        }
+    }
+    vector<string> numbersStr = split(workOnStr, ',');
+    vector<double> arr;
+    for (unsigned int i = 0; i < numbersStr.size(); i++)
+    {
+        cout << numbersStr[i] << endl;
+        arr.push_back(stod(numbersStr[i]));
+    }
+    int rows = (int)arr.size() / cols;
+    for (unsigned int i = 0; i < arr.size(); i++)
+    {
+        cout << arr[i] << " ";
+    }
+    cout << endl;
+    cout << rows << " " << cols << endl;
+    try
+    {
+        *this = Matrix{arr, rows, cols};
+    }
+    catch(const std::exception& e)
+    {
+        std::cerr << e.what() << '\n';
+        exit(1);
+    }
+    
+    
+
 }
 
 Matrix::~Matrix()
@@ -393,11 +441,11 @@ ostream& zich::operator<< (ostream& output, const Matrix& m)
         {
             t = m._mat[i][j];
             if (t == 0)
-                output << 0;
+                output << 0;        // because it has problems with printing
             else
                 output << t;
             
-            if (j < m._col - 1)
+            if (j < m._col - 1)     // if not the last number print ", "
             {
                 output << ", ";
             }
@@ -408,12 +456,67 @@ ostream& zich::operator<< (ostream& output, const Matrix& m)
     return (output);
 }
 
+vector<string> Matrix::split(const string& str, char parser)
+{
+    vector<string> splited;
+    stringstream strStream(str);
+    string outStr;
+    while (getline(strStream, outStr, parser))
+    {
+        splited.push_back(outStr);
+    }
+    return (splited);
+}
+
+/**
+ * @brief form string get the number of the columns for the matrix
+ * 
+ * @param str 
+ * @return unsigned int 
+ */
+int Matrix::getNumberOfColumnFromStr(const string& str)
+{
+    string workOnStr(str);
+    int end = 0;
+    vector<int> rows;
+    int col = 0;
+    while ((end = workOnStr.find("], ")) != string::npos)
+    {
+        col = count(workOnStr.begin(), workOnStr.begin() + end, ',') + 1;
+        rows.push_back(col);
+        workOnStr = workOnStr.substr((unsigned int)(end + 3));
+    }
+    col = count(workOnStr.begin(), workOnStr.end(), ',') + 1;
+    rows.push_back(col);
+
+    for (unsigned int i = 0; i < rows.size(); i++)
+    {
+        if (col != rows[i])
+        {
+            throw MessageException("the string of matrix must have the number of cols for each row");
+        }
+    }
+    return col;
+}
+
+bool Matrix::isGoodMatrixInput(const string& str)
+{
+    string regexDouble = "((\\d+\\.?\\d*)|(\\.\\d+))";                            // checks if numbers are good
+    string regexCheckListNumbers = regexDouble + "(\\, " + regexDouble + ")*";  // chacks if commas are right
+    regexCheckListNumbers = "\\[" + regexCheckListNumbers + "\\]";              // checks if [..., ...] is good
+    string regexMatrixStr = regexCheckListNumbers + "(\\, " + regexCheckListNumbers + ")*";    // checks if [], [] is good
+    regexMatrixStr = "^" + regexMatrixStr + "$";         // checks that if not substring found - must be the whole string
+
+    regex regExMatrix(regexMatrixStr);
+    return (regex_match(str, regExMatrix));
+}
+
 istream& zich::operator>> (istream& input , Matrix& m)
 {
-    //for the regex:
-    // \[\d+(\, \d+)*\](\, \[\d+(\, \d+)*\])*$
-    // (\d*\.?\d+) - double num
-    
+    string inStr;
+    getline(input, inStr);
+    //cout << Matrix::getNumberOfColumnFromStr(inStr) << endl;
+    m = Matrix{inStr};
     return (input);
 }
 
