@@ -65,12 +65,12 @@ Matrix::Matrix(const string& str)
     string workOnStr;
     for (unsigned int i = 0; i < str.length(); i++)
     {
-        if (str[i] != '[' && str[i] != ']' && str[i] != ' ')
+        if (str[i] != '[' && str[i] != ']' && str[i] != ',')
         {
             workOnStr += str[i];
         }
     }
-    vector<string> numbersStr = split(workOnStr, ',');
+    vector<string> numbersStr = split(workOnStr, ' ');
     vector<double> arr;
     for (unsigned int i = 0; i < numbersStr.size(); i++)
     {
@@ -468,6 +468,20 @@ vector<string> Matrix::split(const string& str, char parser)
     return (splited);
 }
 
+vector<string> Matrix::split(const string& str, string parser)
+{
+    vector<string> splited;
+    string copyStr(str);
+    int index = -1;
+    while ((index = copyStr.find(parser)) != string::npos)
+    {
+        splited.push_back(copyStr.substr(0, (unsigned int)index));
+        copyStr = copyStr.substr((unsigned int)index + parser.length());
+    }
+    splited.push_back(copyStr);
+    return (splited);
+}
+
 /**
  * @brief form string get the number of the columns for the matrix
  * 
@@ -476,18 +490,15 @@ vector<string> Matrix::split(const string& str, char parser)
  */
 int Matrix::getNumberOfColumnFromStr(const string& str)
 {
-    string workOnStr(str);
     int end = 0;
     vector<int> rows;
     int col = 0;
-    while ((end = workOnStr.find("], ")) != string::npos)
+    vector<string> splited = split(str, ", ");
+    for (unsigned int i = 0; i < splited.size(); i++)
     {
-        col = count(workOnStr.begin(), workOnStr.begin() + end, ',') + 1;
+        col = count(splited[i].begin(), splited[i].end(), ' ') + 1;
         rows.push_back(col);
-        workOnStr = workOnStr.substr((unsigned int)(end + 3));
     }
-    col = count(workOnStr.begin(), workOnStr.end(), ',') + 1;
-    rows.push_back(col);
 
     for (unsigned int i = 0; i < rows.size(); i++)
     {
@@ -502,7 +513,7 @@ int Matrix::getNumberOfColumnFromStr(const string& str)
 bool Matrix::isGoodMatrixInput(const string& str)
 {
     string regexDouble = "((\\d+\\.?\\d*)|(\\.\\d+))";                            // checks if numbers are good
-    string regexCheckListNumbers = regexDouble + "(\\, " + regexDouble + ")*";  // chacks if commas are right
+    string regexCheckListNumbers = regexDouble + "( " + regexDouble + ")*";  // chacks if spaces are right
     regexCheckListNumbers = "\\[" + regexCheckListNumbers + "\\]";              // checks if [..., ...] is good
     string regexMatrixStr = regexCheckListNumbers + "(\\, " + regexCheckListNumbers + ")*";    // checks if [], [] is good
     regexMatrixStr = "^" + regexMatrixStr + "$";         // checks that if not substring found - must be the whole string

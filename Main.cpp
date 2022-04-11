@@ -51,7 +51,7 @@ int main() {
   
   cout << b.toString() << endl;
   /*
-  [6, 0, 0], [0, 6, 0], [0, 0, 6]
+  [6 0 0], [0 6 0], [0 0 6]
   */
   cin >> a;
   cout << a << endl;
