@@ -82,7 +82,6 @@ namespace zich
             static int compareSumMatrix(const Matrix& a, const Matrix& b);
             long double sumMatrix() const;
             static bool isGoodMatrixInput(const string& str);
-            vector<vector<double>> doubleMatFromStr(const string str);
             
     };
     

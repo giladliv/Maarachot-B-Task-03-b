@@ -26,7 +26,7 @@ Matrix::Matrix(const vector<double>& mat, int row, int col)
 
 void Matrix::arrToMat(const vector<double>& matArr, int row, int col)
 {
-    _mat = vector<vector<double>>();
+    _mat.clear();
     unsigned int ind = 0;
     int len = matArr.size();
     for (unsigned int i = 0; i < row && ind < len; i++)
@@ -71,20 +71,22 @@ Matrix::Matrix(const string& str)
                                 "each row  will be saperated by \", \"");
     }
 
-    string workOnStr;
+    string line;
     vector<string> matRows = split(str, ", ");
     
     _row = matRows.size();
 
-    _mat = vector<vector<double>>((unsigned int)_row, vector<double>());
+    _mat.clear();
     vector<string> numbersStr;
 
     for (unsigned int i = 0; i < _row; i++)
     {
-        matRows[i].pop_back();    // remove the last char ']' from the line - thats because the input is ok
-        matRows[i].erase(0, 1);   // remove the first char '[' from the line - thats because the input is ok
+        _mat.push_back(vector<double>());
+        line = matRows[i];
+        line.pop_back();    // remove the last char ']' from the line - thats because the input is ok
+        line = line.erase(0, 1);   // remove the first char '[' from the line - thats because the input is ok
         
-        numbersStr = split(matRows[i], " "); // split the string to the
+        numbersStr = split(line, " "); // split the string to the
         
         // if the number of colums is difrrent from the previous then the input is invalid
         if (i > 0 && _col != numbersStr.size())
@@ -97,7 +99,7 @@ Matrix::Matrix(const string& str)
 
         for (unsigned int j = 0; j < _col; j++)
         {
-            _mat[i].push_back(stod(numbersStr[i]));     // for each row push the number as double to the matrix line
+            _mat[i].push_back(stod(numbersStr[j]));     // for each row push the number as double to the matrix line
         }
         
     }
