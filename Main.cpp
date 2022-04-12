@@ -16,7 +16,7 @@
 using namespace std;
 
 
-#include "sources/Menu.hpp"
+#include "sources/Matrix.hpp"
 using namespace zich;
 
 int main() {
@@ -54,8 +54,10 @@ int main() {
   /*
   [6 0 0], [0 6 0], [0 0 6]
   */
-  cout << Menu::getMatFromInput() << endl;
 
+  string s = "abc";
+  cout << s.erase(0, 1) << endl;
+ 
   
   cout << "End of demo!" << endl;
   return 0;

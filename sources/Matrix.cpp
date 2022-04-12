@@ -62,42 +62,46 @@ Matrix::Matrix() : Matrix({0}, 1, 1)
  */
 Matrix::Matrix(const string& str)
 {
+    // if the regex check found that the matrix input is not suitable throw a message exception
     if (!Matrix::isGoodMatrixInput(str))
     {
-        throw MessageException("matrix must be with format of [... ... ...], [... ... ...], ...");
-    }
-
-    //after the check of the regex col can't be 0
-    int cols = getNumberOfColumnFromStr(str);
-    if (cols == 0)
-    {
-        throw MessageException("cols cannot be zero");
+        throw MessageException("matrix must be with format of [.. .. ..], [.. .. ..], [.. .. ..]\n"
+                                "each row must be inside of squared brackets\n"
+                                "each row must contain valid numbers, which will be saperated by only one space\n"
+                                "each row  will be saperated by \", \"");
     }
 
     string workOnStr;
-    for (unsigned int i = 0; i < str.length(); i++)
+    vector<string> matRows = split(str, ", ");
+    
+    _row = matRows.size();
+
+    _mat = vector<vector<double>>((unsigned int)_row, vector<double>());
+    vector<string> numbersStr;
+
+    for (unsigned int i = 0; i < _row; i++)
     {
-        if (str[i] != '[' && str[i] != ']' && str[i] != ',')    // remove the '[' and ']' and ','
+        matRows[i].pop_back();    // remove the last char ']' from the line - thats because the input is ok
+        matRows[i].erase(0, 1);   // remove the first char '[' from the line - thats because the input is ok
+        
+        numbersStr = split(matRows[i], " "); // split the string to the
+        
+        // if the number of colums is difrrent from the previous then the input is invalid
+        if (i > 0 && _col != numbersStr.size())
         {
-            workOnStr += str[i];
+            throw MessageException("invalid column number - each row must have the same amount of numbers");
         }
+
+        // set now the columns number - the first time will make the change the others won't
+        _col = numbersStr.size();
+
+        for (unsigned int j = 0; j < _col; j++)
+        {
+            _mat[i].push_back(stod(numbersStr[i]));     // for each row push the number as double to the matrix line
+        }
+        
     }
     
-    // split the string to vector that each var in vector is double as string
-    vector<string> numbersStr = split(workOnStr, " ");
-    
-    vector<double> arr;
-    for (unsigned int i = 0; i < numbersStr.size(); i++) 
-    {
-        // converting each string to double and push it to double vector
-        arr.push_back(stod(numbersStr[i]));
-    }
-
-    int rows = (int)arr.size() / cols;
-    _row = rows;
-    _col = cols;
-    *this = Matrix{arr, rows, cols};
-
 }
 
 Matrix::~Matrix()
@@ -199,7 +203,7 @@ Matrix Matrix::operator+(const Matrix& other) const
  */
 Matrix Matrix::operator-() const
 {
-    return ((*this)*(-1));
+    return (this->operator*(-1));
 }
 
 /**
@@ -259,8 +263,6 @@ Matrix zich::operator*(double skalar, const Matrix& m)
 {
     return (m * skalar);
 }
-
-
 
 Matrix& Matrix::operator+=(const Matrix& other)
 {
@@ -369,11 +371,11 @@ long double Matrix::sumMatrix() const
 int Matrix::compareSumMatrix(const Matrix& a, const Matrix& b)
 {
     long double diff = a.sumMatrix() - b.sumMatrix();
-    if (diff < -EPS)        // if the comparison is lower than the -EPS then (a > b)
+    if (diff < 0)        // if the comparison is lower than the -EPS then (a > b)
     {
         return (-1);
     }
-    if (diff > EPS)        // if the comparison is higher than the EPS then (a < b)
+    if (diff > 0)        // if the comparison is higher than the EPS then (a < b)
     {
         return (1);
     }
@@ -509,7 +511,7 @@ int Matrix::getNumberOfColumnFromStr(const string& str)
 
 bool Matrix::isGoodMatrixInput(const string& str)
 {
-    string regexDouble = "((\\d+\\.?\\d*)|(\\.\\d+))";                                          // checks if numbers are good
+    string regexDouble = "([-+]?((\\d+\\.?\\d*)|(\\.\\d+)))";                                     // checks if numbers are good
     string regexCheckListNumbers = regexDouble + "( " + regexDouble + ")*";                     // chacks if spaces are right
     regexCheckListNumbers = "\\[" + regexCheckListNumbers + "\\]";                              // checks if [..., ...] is good
     string regexMatrixStr = regexCheckListNumbers + "(\\, " + regexCheckListNumbers + ")*";     // checks if [], [] is good
@@ -519,7 +521,7 @@ bool Matrix::isGoodMatrixInput(const string& str)
     return (regex_match(str, regExMatrix));
 }
 
-istream& zich::operator>> (istream& input , Matrix& m)
+istream& zich::operator>>(istream& input , Matrix& m)
 {
     string inStr;
     getline(input, inStr);

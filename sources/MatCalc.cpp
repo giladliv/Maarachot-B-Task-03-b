@@ -1,13 +1,12 @@
-#include "Menu.hpp"
-using zich::Menu;
+#include "MatCalc.hpp"
+using zich::MatCalc;
 
 
-
-Menu::Menu(/* args */)
+MatCalc::MatCalc(/* args */)
 {
 }
 
-Menu::~Menu()
+MatCalc::~MatCalc()
 {
 }
 
@@ -19,7 +18,7 @@ Menu::~Menu()
  * @return true
  * @return false
  */
-bool Menu::isGoodVarName(const string& str)
+bool MatCalc::isGoodVarName(const string& str)
 {   
     unsigned int digitCount = 0;
     if (str.length() == 0)
@@ -44,7 +43,7 @@ bool Menu::isGoodVarName(const string& str)
     
 }
 
-void Menu::addVarMatrix()
+void MatCalc::addVarMatrix()
 {
     string name;
     bool isNotGoodMat = true;
@@ -68,7 +67,7 @@ void Menu::addVarMatrix()
     
 }
 
-Matrix Menu::getMatFromInput()
+Matrix MatCalc::getMatFromInput()
 {
     Matrix m;
     bool isNotGoodMat = true;
@@ -92,7 +91,7 @@ Matrix Menu::getMatFromInput()
     return (m);
 }
 
-string Menu::getVarName()
+string MatCalc::getVarName()
 {
     bool isNotValidVar = true;
     string varName;
@@ -113,7 +112,7 @@ string Menu::getVarName()
     return (varName);
 }
 
-bool Menu::isVarExist(const string& var)
+bool MatCalc::isVarExist(const string& var)
 {
     return (_variables.count(var) > 0);
 }

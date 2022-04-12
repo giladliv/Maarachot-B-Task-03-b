@@ -7,14 +7,14 @@ using zich::Matrix;
 
 namespace zich
 {
-    class Menu
+    class MatCalc
     {
         public:
-        Menu(/* args */);
+        MatCalc(/* args */);
         void addVarMatrix();
         static string getVarName();
         static Matrix getMatFromInput();
-        ~Menu();
+        ~MatCalc();
         
 
         private:
