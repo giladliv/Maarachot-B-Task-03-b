@@ -8,7 +8,7 @@ using zich::Matrix;
  * @param row 
  * @param col 
  */
-Matrix::Matrix(vector<double>& mat, int row, int col)
+Matrix::Matrix(const vector<double>& mat, int row, int col)
 {
     if (row <= 0 || col <= 0)   // the row and col must be positive
     {
@@ -23,7 +23,8 @@ Matrix::Matrix(vector<double>& mat, int row, int col)
     arrToMat(mat, row, col);        // copy the vector to the matrix   
 }
 
-void Matrix::arrToMat(vector<double>& matArr, int row, int col)
+
+void Matrix::arrToMat(const vector<double>& matArr, int row, int col)
 {
     _mat = vector<vector<double>>();
     unsigned int ind = 0;
@@ -44,9 +45,14 @@ void Matrix::arrToMat(vector<double>& matArr, int row, int col)
  * 
  * @param other 
  */
-Matrix::Matrix(const Matrix& other)
+Matrix::Matrix(const Matrix& other) : _row(other._row), _col(other._col)
 {
     (*this) = other;
+}
+
+Matrix::Matrix() : Matrix({0}, 1, 1)
+{
+
 }
 
 /**
@@ -58,52 +64,45 @@ Matrix::Matrix(const string& str)
 {
     if (!Matrix::isGoodMatrixInput(str))
     {
-        throw MessageException("matrix must be with format of [..., ..., ...], [..., ..., ...], ...");
+        throw MessageException("matrix must be with format of [... ... ...], [... ... ...], ...");
     }
+
+    //after the check of the regex col can't be 0
     int cols = getNumberOfColumnFromStr(str);
-    
+    if (cols == 0)
+    {
+        throw MessageException("cols cannot be zero");
+    }
+
     string workOnStr;
     for (unsigned int i = 0; i < str.length(); i++)
     {
-        if (str[i] != '[' && str[i] != ']' && str[i] != ',')
+        if (str[i] != '[' && str[i] != ']' && str[i] != ',')    // remove the '[' and ']' and ','
         {
             workOnStr += str[i];
         }
     }
-    vector<string> numbersStr = split(workOnStr, ' ');
+    
+    // split the string to vector that each var in vector is double as string
+    vector<string> numbersStr = split(workOnStr, " ");
+    
     vector<double> arr;
-    for (unsigned int i = 0; i < numbersStr.size(); i++)
+    for (unsigned int i = 0; i < numbersStr.size(); i++) 
     {
-        cout << numbersStr[i] << endl;
+        // converting each string to double and push it to double vector
         arr.push_back(stod(numbersStr[i]));
     }
+
     int rows = (int)arr.size() / cols;
-    for (unsigned int i = 0; i < arr.size(); i++)
-    {
-        cout << arr[i] << " ";
-    }
-    cout << endl;
-    cout << rows << " " << cols << endl;
-    try
-    {
-        *this = Matrix{arr, rows, cols};
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-        exit(1);
-    }
-    
-    
+    _row = rows;
+    _col = cols;
+    *this = Matrix{arr, rows, cols};
 
 }
 
 Matrix::~Matrix()
 {
-    for(unsigned int i = 0; i < _mat.size(); i++)
-    {
-        _mat[i].clear();
-    }
+    
 }
 
 /**
@@ -241,6 +240,8 @@ Matrix Matrix::operator*(const Matrix& other) const
             {
                 ret._mat[i][j] += this->_mat[i][t] * other._mat[t][j];
             }
+            // zero mul neg causes troubles
+            ret._mat[i][j] = (ret._mat[i][j] == 0) ? 0 : ret._mat[i][j];
         }
     }
 
@@ -296,6 +297,9 @@ Matrix& Matrix::operator*=(double skalar)
         for (unsigned int j = 0; j < _col; j++)
         {
             _mat[i][j] *= skalar;
+
+            // zero mul neg causes troubles
+            _mat[i][j] = (_mat[i][j] == 0) ? 0 : _mat[i][j];
         }
     }
     return (*this);
@@ -386,7 +390,10 @@ bool zich::operator==(const Matrix& m1, const Matrix& m2)
         for (unsigned int j = 0; j < col; j++)
         {
             if (m1._mat[i][j] != m2._mat[i][j])
+            {
                 return (false);
+            }
+                
         }
     }
     
@@ -440,35 +447,24 @@ ostream& zich::operator<< (ostream& output, const Matrix& m)
         for (unsigned int j = 0; j < m._col; j++)
         {
             t = m._mat[i][j];
-            if (t == 0)
-                output << 0;        // because it has problems with printing
-            else
-                output << t;
+            output << t;
             
-            if (j < m._col - 1)     // if not the last number print ", "
+            if (j < m._col - 1)     // if not the last number print " "
             {
-                output << ", ";
+                output << " ";
             }
         }
-        output << "]\n";
+        output << "]";
+        if (i < m._row - 1)     // if not the last line then print \n
+        {
+            output << "\n";
+        }
     }
 
     return (output);
 }
 
-vector<string> Matrix::split(const string& str, char parser)
-{
-    vector<string> splited;
-    stringstream strStream(str);
-    string outStr;
-    while (getline(strStream, outStr, parser))
-    {
-        splited.push_back(outStr);
-    }
-    return (splited);
-}
-
-vector<string> Matrix::split(const string& str, string parser)
+vector<string> Matrix::split(const string& str, const string& parser)
 {
     vector<string> splited;
     string copyStr(str);
@@ -493,16 +489,17 @@ int Matrix::getNumberOfColumnFromStr(const string& str)
     int end = 0;
     vector<int> rows;
     int col = 0;
+    int currCol = 0;
     vector<string> splited = split(str, ", ");
     for (unsigned int i = 0; i < splited.size(); i++)
     {
-        col = count(splited[i].begin(), splited[i].end(), ' ') + 1;
-        rows.push_back(col);
-    }
+        currCol = (int)count(splited[i].begin(), splited[i].end(), ' ') + 1;
+        if (i == 0)
+        {
+            col = currCol;
+        }
 
-    for (unsigned int i = 0; i < rows.size(); i++)
-    {
-        if (col != rows[i])
+        if (col != currCol)
         {
             throw MessageException("the string of matrix must have the number of cols for each row");
         }
@@ -512,11 +509,11 @@ int Matrix::getNumberOfColumnFromStr(const string& str)
 
 bool Matrix::isGoodMatrixInput(const string& str)
 {
-    string regexDouble = "((\\d+\\.?\\d*)|(\\.\\d+))";                            // checks if numbers are good
-    string regexCheckListNumbers = regexDouble + "( " + regexDouble + ")*";  // chacks if spaces are right
-    regexCheckListNumbers = "\\[" + regexCheckListNumbers + "\\]";              // checks if [..., ...] is good
-    string regexMatrixStr = regexCheckListNumbers + "(\\, " + regexCheckListNumbers + ")*";    // checks if [], [] is good
-    regexMatrixStr = "^" + regexMatrixStr + "$";         // checks that if not substring found - must be the whole string
+    string regexDouble = "((\\d+\\.?\\d*)|(\\.\\d+))";                                          // checks if numbers are good
+    string regexCheckListNumbers = regexDouble + "( " + regexDouble + ")*";                     // chacks if spaces are right
+    regexCheckListNumbers = "\\[" + regexCheckListNumbers + "\\]";                              // checks if [..., ...] is good
+    string regexMatrixStr = regexCheckListNumbers + "(\\, " + regexCheckListNumbers + ")*";     // checks if [], [] is good
+    regexMatrixStr = "^" + regexMatrixStr + "$";                                                // checks that if not substring found - must be the whole string
 
     regex regExMatrix(regexMatrixStr);
     return (regex_match(str, regExMatrix));

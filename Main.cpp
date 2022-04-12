@@ -12,10 +12,11 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_map>
 using namespace std;
 
-#include "sources/Matrix.hpp"
 
+#include "sources/Menu.hpp"
 using namespace zich;
 
 int main() {
@@ -53,8 +54,9 @@ int main() {
   /*
   [6 0 0], [0 6 0], [0 0 6]
   */
-  cin >> a;
-  cout << a << endl;
+  cout << Menu::getMatFromInput() << endl;
+
+  
   cout << "End of demo!" << endl;
   return 0;
 }

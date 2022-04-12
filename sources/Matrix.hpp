@@ -17,9 +17,10 @@ namespace zich
     {
         public:
             // c'tor
-            Matrix(vector<double>& mat, int row, int col);
+            Matrix(const vector<double>& mat, int row, int col);
             Matrix(const string& str);
             Matrix(const Matrix& other);
+            Matrix();
             
             // d'tor
             ~Matrix();
@@ -66,8 +67,7 @@ namespace zich
             friend std::ostream& operator<< (ostream& output, const Matrix& m);
             friend std::istream& operator>> (istream& input , Matrix& m);
             string toString() const;
-            vector<string> split(const string& str, char parser);
-            static vector<string> split(const string& str, string parser);
+            static vector<string> split(const string& str, const string& parser);
             static int getNumberOfColumnFromStr(const string& str);
 
         private:
@@ -76,7 +76,7 @@ namespace zich
             int _row;
             int _col;
 
-            void arrToMat(vector<double>& matArr, int row, int col);
+            void arrToMat(const vector<double>& matArr, int row, int col);
             friend void throwIfNotSameSize(const Matrix& a, const Matrix& b);
             friend void throwIfMulWrong(const Matrix& a, const Matrix& b);
             static int compareSumMatrix(const Matrix& a, const Matrix& b);
