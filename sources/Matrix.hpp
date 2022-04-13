@@ -68,7 +68,6 @@ namespace zich
             friend std::istream& operator>> (istream& input , Matrix& m);
             string toString() const;
             static vector<string> split(const string& str, const string& parser);
-            static int getNumberOfColumnFromStr(const string& str);
 
         private:
             /* data */

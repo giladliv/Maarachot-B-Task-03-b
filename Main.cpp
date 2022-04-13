@@ -56,16 +56,74 @@ namespace zich
 
 using zich::MatCalc;
 
+int main()
+{
+  MatCalc calc;
+  cout << "Welcome to our matrix calculator" << endl;
+  
+  string op;
+
+  do
+  {
+    cout << "\nfor entering new variable please enter 1" << endl;
+    cout << "for performing calculations please enter 2" << endl;
+    cout << "for performing calculations please enter q" << endl;
+    cout << "please enter your choice: ";
+    getline(cin, op);
+    if (op == "1")
+    {
+      calc.addVarMatrix();
+    }
+    else if (op == "2")
+    {
+      string calcLine;
+      cout << "enter here your calculations, for ending please enter \"q!\"" << endl;
+      while (calcLine != "q!")
+      {
+        try
+        {
+          cout << ">>>>  ";
+          getline(cin, calcLine);
+          if (calcLine != "q!")
+          {
+            calc.parser(calcLine);
+          }
+          
+        }
+        catch(const std::exception& e)
+        {
+          std::cerr << e.what() << '\n';
+        }
+        
+      }
+      
+    }
+    else if (op == "q")
+    {
+        cout << "Goodbye" << endl;
+    }
+    else 
+    {
+      cout << "invalid choice" << endl;
+    }
+  } while (op != "q");
+  
+
+}
+
+
+/******************************************************
+ *                                                    *
+ *               MatCalc implmentation                *
+ *                                                    *
+ * ****************************************************/
 
 MatCalc::MatCalc()
 {
     _signes = {"+=", "-=", "*=", "++", "--", "+", "-", "*", "==", "!=", "<=", ">=", "<", ">"};
 }
 
-MatCalc::~MatCalc()
-{
-
-}
+MatCalc::~MatCalc() { }
 
 void MatCalc::parser(const string& str)
 {
@@ -400,54 +458,4 @@ void MatCalc::removeSpacesFromEnd(string& str)
 
 
 
-int main()
-{
-  MatCalc calc;
-  cout << "Welcome to our matrix calculator" << endl;
-  
-  string op;
 
-  do
-  {
-    cout << "\nfor entering new variable please enter 1" << endl;
-    cout << "for performing calculations please enter 2" << endl;
-    cout << "for performing calculations please enter q" << endl;
-    cout << "please enter your choice: ";
-    getline(cin, op);
-    if (op == "1")
-    {
-      
-      calc.addVarMatrix();
-    }
-    else if (op == "2")
-    {
-      string calcLine;
-      cout << "enter here your calculations, for ending please enter \"q!\"" << endl;
-      while (calcLine != "q!")
-      {
-        try
-        {
-          cout << ">>>>  ";
-          getline(cin, calcLine);
-          if (calcLine == "q!")
-          {
-            break;
-          }
-          calc.parser(calcLine);
-        }
-        catch(const std::exception& e)
-        {
-          std::cerr << e.what() << '\n';
-        }
-        
-      }
-      
-    }
-    else 
-    {
-      cout << "invalid choice" << endl;
-    }
-  } while (op != "q");
-  cout << "Goodbye" << endl;
-
-}
