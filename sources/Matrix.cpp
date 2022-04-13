@@ -124,11 +124,6 @@ Matrix& Matrix::operator=(const Matrix& other)
         return (*this);
     }
     
-    for(unsigned int i = 0; i < _mat.size(); i++)
-    {
-        _mat[i].clear();
-    }
-    
     _mat = vector<vector<double>>();
     
     for (unsigned int i = 0; i < other._mat.size(); i++)
@@ -473,44 +468,23 @@ vector<string> Matrix::split(const string& str, const string& parser)
     vector<string> splited;
     string copyStr(str);
     int index = -1;
+    // check the first apperance of the str
     while ((index = copyStr.find(parser)) != string::npos)
     {
-        splited.push_back(copyStr.substr(0, (unsigned int)index));
-        copyStr = copyStr.substr((unsigned int)index + parser.length());
+        splited.push_back(copyStr.substr(0, (unsigned int)index));          // push it to the vector
+        copyStr = copyStr.substr((unsigned int)index + parser.length());    // remove the substring from start
     }
-    splited.push_back(copyStr);
+    splited.push_back(copyStr);     // push the remain to the vector
     return (splited);
 }
 
 /**
- * @brief form string get the number of the columns for the matrix
+ * @brief using regex to check if string is matching to the format of input matrix
  * 
  * @param str 
- * @return unsigned int 
+ * @return true 
+ * @return false 
  */
-int Matrix::getNumberOfColumnFromStr(const string& str)
-{
-    int end = 0;
-    vector<int> rows;
-    int col = 0;
-    int currCol = 0;
-    vector<string> splited = split(str, ", ");
-    for (unsigned int i = 0; i < splited.size(); i++)
-    {
-        currCol = (int)count(splited[i].begin(), splited[i].end(), ' ') + 1;
-        if (i == 0)
-        {
-            col = currCol;
-        }
-
-        if (col != currCol)
-        {
-            throw MessageException("the string of matrix must have the number of cols for each row");
-        }
-    }
-    return col;
-}
-
 bool Matrix::isGoodMatrixInput(const string& str)
 {
     string regexDouble = "([-+]?((\\d+\\.?\\d*)|(\\.\\d+)))";                                     // checks if numbers are good
